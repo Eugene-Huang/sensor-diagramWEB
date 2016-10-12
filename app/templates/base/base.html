@@ -1,0 +1,60 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block head %}
+{{ super() }}
+<!-- Custom styles for this template -->
+    <link href="../static/css/starter-template.css" rel="stylesheet">
+{% endblock %}
+
+{% block title %}SmartLab{% endblock %}
+{% block navbar %}
+<nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">SmartLab</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/home">主页</a></li>
+            <li><a href="http://it.jssvc.edu.cn/zs/xxjj.html" target="_blank">关于</a></li>
+            <li><a href="/contact">联系我们</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="{{ url_for('admin.dashboard') }}">控制台</a></li>
+            <li><a href="{{ url_for('main.logout') }}">登出</a></li>>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+{% endblock %}
+
+{% block content%}
+<div class="container">
+    {% block page_content %}{% endblock %}
+</div>
+
+  {% block login %}{% endblock %}
+
+<footer class="blog-footer">
+  <div class="container">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Zhifeng<br>
+      Coding by <a href="https://twitter.com/noparking188" target="_blank">@WangZhiwei</a><br>The local date and time is {{ moment(current_time).format('LLL') }}<br>That was {{ moment(current_time).fromNow(refresh=True) }}
+    </div>
+  </div>
+</footer>
+
+
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+    {{ moment.include_moment() }}
+{% endblock %}

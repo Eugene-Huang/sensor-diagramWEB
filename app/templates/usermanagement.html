@@ -1,0 +1,164 @@
+{% extends "base/base.html" %}
+
+{% block head %}
+{{ super() }}
+<!-- Custom styles for this template -->
+    <link href="../static/css/usermanagement.css" rel="stylesheet">
+<!-- DataTable style -->
+     <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/plug-ins/28e7751dbec/integration/bootstrap/3/dataTables.bootstrap.css">
+{% endblock %}
+
+{% block navbar %}
+{{ super() }}
+<nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">SmartLab</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/home">主页</a></li>
+            <li><a href="http://it.jssvc.edu.cn/zs/xxjj.html" target="_blank">关于</a></li>
+            <li><a href="/contact">联系我们</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="{{ url_for('admin.dashboard') }}">控制台</a></li>>
+            <li><a href="{{ url_for('main.logout') }}">登出</a></li>>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+{% endblock %}
+
+{% block page_content %}
+    <div class="container-fluid">
+      <div class="row">
+        <div>
+          <h1 class="page-header">用户管理</h1>
+
+          <h2 class="sub-header">User Info</h2>
+          <div class="table-responsive">
+            <table id="admin-table" class="display" cellspacing="0" width="100%">
+              <caption>全部用户帐号</caption>
+              <thead>
+                  <tr>
+                    <th>User ID</th>
+                    <th>Role</th>
+                    <th>User Name</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+            </table>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-4">
+              <div class="page-header">
+                  <h2>Add user</h2>
+                  {% for message in get_flashed_messages() %}
+                    <div class="alert alert-warning">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        {{ message }}
+                    </div>
+                  {% endfor %}
+              </div>
+              {{ wtf.quick_form(form) }}
+            </div>
+            <div class="col-md-8">
+              <div class="page-header">
+                  <h2>图表展示</h2>
+                  <div id="user-charts" style="min-width:400px;height:400px"></div>
+              </div>
+            </div>
+          </div>
+          
+
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<!-- // <script type="text/javascript" src="../static/js/jquery-1.8.3.min.js"></script> -->
+<script type="text/javascript" src="../static/js/highstock.js"></script>
+<script type="text/javascript" src="../static/js/exporting.js"></script>
+<!-- DataTables -->
+<script type="text/javascript" language="javascript" src="http://cdn.datatables.net/1.10-dev/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" language="javascript" src="http://cdn.datatables.net/plug-ins/28e7751dbec/integration/bootstrap/3/dataTables.bootstrap.js"></script>
+<script type="text/javascript" charset="utf-8">
+        $(document).ready(function getData() {
+            var lang = {
+                "sLengthMenu": "每页 _MENU_ 项",
+                "sZeroRecords": "没有匹配结果",
+                "sInfo": "当前显示第 _START_ 至 _END_ 项，共 _TOTAL_ 项。",
+                "sInfoEmpty": "当前显示第 0 至 0 项，共 0 项",
+                "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                "sInfoPostFix": "",
+                "sUrl": "",
+                "sInfoThousands": ",",
+                "oAria": {
+                    "sSortAscending": ": 以升序排列此列",
+                    "sSortDescending": ": 以降序排列此列"
+                }
+            };
+            var table = $('#admin-table').dataTable({
+              language: lang,
+              ordering: true,
+              searching: true,
+              processing: true,
+              "ajax": {
+                  "url": "/admin/userinfo",
+                  "dataSrc": "",
+                  "cache": false,
+                  "type": "POST"
+                },
+                columns: [
+                  {data: "id"},
+                  {data: "role"},
+                  {data: "username"},
+                  {data: "email"}
+                ],
+                columnDefs: [{
+                    //   指定第一列，从0开始，0表示第一列，1表示第二列……
+                    targets: 4,
+                    render: function(data, type, row, meta) {
+                        return '<a type="button"  href="#" onclick="del("' + row.id + '","' + row.username + '")" >Delete</a>';
+                    }
+                }]
+            }).api();
+            
+        } );
+</script>
+<script type="text/javascript">
+  // For demo to fit into DataTables site builder...
+  $('#admin-table')
+    .removeClass( 'display' )
+    .addClass('table table-striped table-bordered');
+</script>
+<script type="text/javascript">
+  // 默认禁用搜索和排序
+  $.extend( $.fn.dataTable.defaults, {
+      searching: false,
+      ordering:  false
+  } );
+</script>
+<script type="text/javascript" src="../static/js/get_user_pie.js"></script>
+{% endblock %}
+

@@ -1,0 +1,59 @@
+body {
+  padding-top: 50px;
+}
+.starter-template {
+  padding: 40px 15px;
+  text-align: center;
+}
+
+/* Padding for spacing */
+.inner {
+  padding: 30px;
+}
+/*
+ * Affix and center
+ */
+
+/*@media (min-width: 768px) {*/
+  /* Pull out the header and footer */
+
+/*  .mastfoot {
+    position:  fixed;
+    bottom: 0;
+  }
+*/  
+  /* Handle the widths */
+ /* .mastfoot {
+    width: 100%;  Must be percentage or pixels for horizontal alignment 
+    text-align: center;
+  }
+}*/
+
+/*@media (min-width: 992px) {
+  .mastfoot{
+    width: 100%;
+    text-align: center;
+  }
+}
+*/
+
+/*
+ * Footer
+ */
+
+.blog-footer {
+  /*position: fixed;*/
+  bottom: 0;
+  padding: 40px 0;
+  color: #999;
+  text-align: center;
+  background-color: #f9f9f9;
+  border-top: 1px solid #e5e5e5;
+}
+.blog-footer p:last-child {
+  margin-bottom: 0;
+}
+
+.flash          { background: #CEE5F5; padding: 0.5em;
+                  border: 1px solid #AACBE2; }
+.error          { background: #F0D6D6; padding: 0.5em; }

@@ -1,0 +1,45 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}SmartHomeA-Web{% endblock %}
+
+{% block body %}
+
+    <div class="site-wrapper">
+
+      <div class="site-wrapper-inner">
+
+        <div class="cover-container">
+
+          <div class="masthead clearfix">
+            <div class="inner">
+              <h3 class="masthead-brand">
+                {% block  brand %}
+                {% endblock %}
+              </h3>
+              {% block active_nav %}{% endblock %}
+            </div> 
+          </div>
+
+          {% block mutable%}{% endblock %}  
+
+          <div class="mastfoot">
+            <div class="inner">
+              &copy; 2016 Zhifeng<br>
+              Coding by <a href="https://twitter.com/noparking188" target="_blank">@WangZhiwei</a>.<br>
+              The local date and time is {{ moment(current_time).format('LLL') }}.<br>
+              That was {{ moment(current_time).fromNow(refresh=True) }}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  {% block scripts %}
+    {{ super () }}
+      {{ moment.include_moment() }}
+  {% endblock %}
+
+{% endblock %}

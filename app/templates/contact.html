@@ -1,0 +1,33 @@
+{% extends "base/wonderful_base.html" %}
+
+{% block head %}
+{{ super() }}
+<!-- Custom styles for this template -->
+    <link href="../static/css/cover.css" rel="stylesheet">
+{% endblock %}
+
+{% block title %}Home{% endblock %}
+
+{% block brand %}Contact us{% endblock %}
+
+{% block active_nav %}
+	<nav>
+	    <ul class="nav masthead-nav">
+	      <li><a href="/home">Home</a></li>
+	      <li><a href="http://it.jssvc.edu.cn/zs/xxjj.html" target="_blank">About</a></li>
+	      <li class="active"><a href="/contact">Contact</a></li>
+	    </ul>
+	</nav>
+{% endblock %}
+
+{% block mutable %}
+	<div class="inner cover">
+        <h1 class="cover-heading">About us</h1>
+        <p class="lead">智蜂工作室</p>
+        <p class="lead">
+          <div class="inner">
+              <p><a href="#" >Contact us</a></p>
+          </div>
+        </p>
+    </div>
+{% endblock %}

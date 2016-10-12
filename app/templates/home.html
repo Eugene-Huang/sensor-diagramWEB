@@ -1,0 +1,31 @@
+{% extends "base/wonderful_base.html" %}
+
+{% block head %}
+{{ super() }}
+<!-- Custom styles for this template -->
+    <link href="../static/css/cover.css" rel="stylesheet">
+{% endblock %}
+
+{% block title %}Home{% endblock %}
+
+{% block brand %}Introduction{% endblock %}
+
+{% block active_nav %}
+	<nav>
+	    <ul class="nav masthead-nav">
+	      <li class="active"><a href="/home">Home</a></li>
+	      <li><a href="http://it.jssvc.edu.cn/zs/xxjj.html" target="_blank">About</a></li>
+	      <li><a href="/contact">Contact</a></li>
+	    </ul>
+	</nav>
+{% endblock %}
+
+{% block mutable %}
+	<div class="inner cover">
+        <h1 class="cover-heading">SmartLab</h1>
+        <p class="lead">&nbsp;&nbsp;&nbsp;&nbsp;智蜂工作室智能家居后台管理系统：通过网站形式监控部署在家庭内部的智能传感器，对传感器采集的相关数据进行可视化显示，便于用户清楚实时状况。</p>
+        <p class="lead">
+          <a href="/login" class="btn btn-lg btn-primary">Sign in</a>
+        </p>
+    </div>
+{% endblock %}

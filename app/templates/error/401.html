@@ -1,0 +1,36 @@
+{% extends "base/base.html" %}
+
+{% block title %}Unauthorized{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/home">SmartLab</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/home">主页</a></li>
+            <li><a href="/about">关于</a></li>
+            <li><a href="/contact">联系我们</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="{{ url_for('main.login') }}">登入</a></li>>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+{% endblock %}
+
+{% block page_content%}
+<div class="starter-template">
+    <h1>401 Unauthorized</h1>
+    <h3>Sorry, You should login first, I cannot know you are</h3>
+</div>
+{% endblock %}

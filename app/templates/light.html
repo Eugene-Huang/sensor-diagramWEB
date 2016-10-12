@@ -1,0 +1,109 @@
+{% extends "base/chart_base.html" %}
+
+{% block page_content%}
+	<div id="actualtime-light"></div>
+	<div id="lastday-light"></div>
+	<div id="lastweek-light"></div>
+	<div id="all-light"></div>
+{% endblock %}
+
+{% block scripts %}
+	{{ super() }}
+	<script type="text/javascript">
+
+	//后端数据
+	var data = {{ data|safe }};
+
+	//创建图表
+	var chart;
+	$(document).ready(function() {
+	   	Highcharts.setOptions({
+		    global:{
+		        useUTC:false
+		    }
+	   })
+	    chart = new Highcharts.StockChart( {
+		    chart : {
+			    renderTo : 'actualtime-light',
+			    type: 'spline',
+			    events : {
+			        load : st  // ajax定时器
+			    }
+		    },
+		    rangeSelector: {
+		        enabled: false
+		    },
+		    navigator: {
+		    	enabled: false
+		    },
+		    scrollbar: {
+		    	enabled: false
+		    },
+		    exporting:{
+		    	enabled: true
+		    },
+		    credits:{
+		    	enabled: false
+		    },
+		    title : {
+		     	text: '实时光照监控'
+		    },
+		    subtitle: {
+		    	useHTML: true,
+		    	text: "Source: <a href='/contact' target='_blank'>Zhifeng Studio</a>"
+		    },
+		    xAxis: {
+		    	title: {
+		    		text: 'Time: Min/Sec',
+		    		align: 'high'
+		    	},
+		    	type: 'datetime',
+		    	labels: {
+	                formatter: function() {
+	                    return Highcharts.dateFormat('%M:%S', this.value);                  
+	                }
+	            },
+		    	crosshair: {
+	                width: 2,
+	                color: 'rgba(119, 152, 191, .5)',
+	                dashStyle: 'dash'
+		        }
+		    },
+		    yAxis: {
+                title: {
+                    text: 'Light (Lux)'
+                },
+                crosshair: {
+	                width: 2,
+	                color: 'rgba(119, 152, 191, .5)',
+	                dashStyle: 'dash'
+		        }
+		    },
+		    plotOptions: {
+                series: {
+                	marker: {
+                		enabled: true,
+                		radius: 4
+                	}
+                }
+			},
+		    tooltip: {
+    			positioner: function(){
+    				return { x: 60, y: 30};
+    			},
+                valueSuffix: 'º'
+		    },
+		    series : [{
+			    name: 'light',
+			    data : data
+		     }]
+	   });
+
+	});
+	
+	</script>
+	<script type="text/javascript" src="../static/js/lastdaylight.js"></script>
+	<script type="text/javascript" src="../static/js/lastweeklight.js"></script>
+	<script type="text/javascript" src="../static/js/ajax_light.js"></script>
+	<script type="text/javascript" src="../static/js/all_light.js"></script>
+{% endblock %}

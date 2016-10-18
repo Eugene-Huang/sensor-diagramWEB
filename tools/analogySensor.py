@@ -10,6 +10,7 @@ import random
 import time
 import sys
 import argparse
+from threading import Thread
 from datetime import datetime, timedelta
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -32,7 +33,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('sensor_type', help='Input sensor type,\
                     "temp => temperature | "humi" => humidity\
                     | "lumi" => luminousIntensity | "fire" | \
-                    "smoke" | "human" ==> human infrared')
+                    "smoke" | "human" ==> human infrared | all')
 parser.add_argument('-r', '--run_minute', type=int, default=1,
                     help='Input minutes you want to run this py')
 parser.add_argument('-d', '--delay_seconds', type=int, default=2,
@@ -156,13 +157,12 @@ def insert_fire():
 
 def insert_smoke():
     insertID = 1
-    for i in xrange(0, 10):
-        current_time = datetime.now()
-
+    current_time = datetime.now()  # 获取当前时间
+    update_time = current_time + timedelta(minutes=MINS)  # 截止时间
+    while current_time < update_time:
         STATUS = random.choice([True, False])
         ADDRESS = random.choice(['home', 'school'])
         NODE = int(format(random.randint(1, 5), '03'))
-
         Smoke = smoke(status=STATUS, node=NODE, address=ADDRESS)
         try:
             db.session.add(Smoke)
@@ -171,33 +171,16 @@ def insert_smoke():
             # NODE += 1
         except MySQLdb.Error as e:
             raise e
+        time.sleep(DELAY)  # delay one seconds
+        current_time = datetime.now()  # 更新当前时间
         insertID += 1
-
-
-# def insert_fire():
-#     insertID = 1
-#     for i in xrange(0, 10):
-#         current_time = datetime.now()
-
-#         STATUS = random.choice([True, False])
-#         ADDRESS = random.choice(['home', 'school'])
-#         NODE = int(format(random.randint(1, 5), '03'))
-#         Fire = fire(status=STATUS, node=NODE, address=ADDRESS)
-#         try:
-#             db.session.add(Fire)
-#             db.session.commit()
-#             print 'Insert successful  [', current_time, '] [', insertID, ']'
-            # NODE += 1
-#         except MySQLdb.Error as e:
-#             raise e
-#         insertID += 1
 
 
 def insert_human_infrared():
     insertID = 1
-    for i in xrange(0, 10):
-        current_time = datetime.now()
-
+    current_time = datetime.now()  # 获取当前时间
+    update_time = current_time + timedelta(minutes=MINS)  # 截止时间
+    while current_time < update_time:
         STATUS = random.choice([True, False])
         ADDRESS = random.choice(['home', 'school'])
         NODE = int(format(random.randint(1, 5), '03'))
@@ -209,8 +192,24 @@ def insert_human_infrared():
             # NODE += 1
         except MySQLdb.Error as e:
             raise e
+        time.sleep(DELAY)  # delay one seconds
+        current_time = datetime.now()  # 更新当前时间
         insertID += 1
 
+
+def main():
+    thread1 = Thread(target=insert_temperature)
+    thread2 = Thread(target=insert_huimidity)
+    thread3 = Thread(target=insert_luminous_Intensity)
+    thread4 = Thread(target=insert_fire)
+    thread5 = Thread(target=insert_smoke)
+    thread6 = Thread(target=insert_human_infrared)
+    thread1.start()
+    thread2.start()
+    thread3.start()
+    thread4.start()
+    thread5.start()
+    thread6.start()
 
 if __name__ == '__main__':
     try:
@@ -232,6 +231,8 @@ if __name__ == '__main__':
         if SENSOR == 'human':
             insert_human_infrared()
             sys.exit(0)
+        if SENSOR == 'all':
+            main()
         else:
             print '\n\t[Error]: Pelase input correct argument\n\tType "-h" or "--help" for help\n'
     except KeyboardInterrupt:

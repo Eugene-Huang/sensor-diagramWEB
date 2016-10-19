@@ -64,7 +64,7 @@ def login():
                                 url_for('admin.dashboard'))
             # 普通账户转到图表页面
             return redirect(request.args.get('next') or
-                            url_for('user.tempView'))
+                            url_for('main.index'))
     return render_template('login.html',
                            current_time=current_time)
 

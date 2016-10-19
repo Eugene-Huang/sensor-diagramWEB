@@ -56,9 +56,9 @@
           <ul class="nav nav-sidebar">
             <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">用户管理<b class="caret"></b></a>
                 <ul class="dropdown-menu">
-                  <li><a href="/admin/usermanage">Add</a></li>
-                  <li><a href="/admin/usermanage">Delete</a></li>
-                  <li><a href="#">Change</a></li>
+                  <li><a href="/admin/usermanage">添加</a></li>
+                  <li><a href="/admin/usermanage">删除</a></li>
+                  <li><a href="/admin/uesrmanage">更改</a></li>
                   <li class="divider"></li>
                   <li><a id="action-1" href="/admin/usermanage">Info</a></li>
                 </ul>
@@ -78,17 +78,17 @@
 
           <div class="row placeholders">
             <div class="col-xs-6 col-sm-3 placeholder">
-              <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Temperature">
+              <img src="../static/images/temperature01.png" class="img-responsive" alt="Temperature">
               <h4>温度</h4>
               <span class="text-muted"><a href="{{ url_for('user.tempView') }}">Go to see</a></span>
             </div>
             <div class="col-xs-6 col-sm-3 placeholder">
-              <img data-src="holder.js/200x200/auto/vine" class="img-responsive" alt="Humidity">
+              <img src="../static/images/humidity.png" class="img-responsive" alt="Humidity">
               <h4>湿度</h4>
               <span class="text-muted"><a href="{{ url_for('user.humView') }}">Go to see</a></span>
             </div>
             <div class="col-xs-6 col-sm-3 placeholder">
-              <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="Light">
+              <img src="../static/images/light.png" class="img-responsive" alt="Light">
               <h4>光照</h4>
               <span class="text-muted"><a href="{{ url_for('user.lightView') }}">Go to see</a></span>
             </div>

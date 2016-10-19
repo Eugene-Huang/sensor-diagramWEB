@@ -139,37 +139,16 @@ def viewDigital():
         node = request.form['search']
         # 输入的节点号必须是整数
         try:
-            int(node)
+            node = int(node)
         except:
             flash(u'节点号必须是整数')
 
         data = json.dumps([getPieData(node), getLineData(node)])
         return render_template('view_digital.html', data=data, current_time=current_time)
     else:
-        flash(u'没有数据可以显示，请搜索节点数据')
-        return render_template('view_digital.html', current_time=current_time)
-
-
-# @admin.route('/dgpie', methods=['GET', 'POST'])
-# @login_required
-# @admin_required
-# def getDgPie():
-#     if request.method == "POST":
-#         node = request.form['search']
-#         return getPieData(node)
-#     else:
-#         return getPieData(1)
-
-
-# @admin.route('/dgline', methods=['GET', 'POST'])
-# @login_required
-# @admin_required
-# def getDgLine():
-#     if request.method == "POST":
-#         node = request.form['search']
-#         return getLineData(node)
-#     else:
-#         return getLineData(1)
+        data = json.dumps([getPieData(1), getLineData(1)])
+        flash(u'默认显示节点01数据，请搜索节点查看数据')
+        return render_template('view_digital.html', data=data, current_time=current_time)
 
 
 # 按节点获取线图数据

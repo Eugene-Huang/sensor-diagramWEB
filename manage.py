@@ -4,8 +4,7 @@ from flask_migrate import Migrate, MigrateCommand
 from app import db, creat_app
 from app.models import Role, User
 import config
-# from .extra import analogySensor
-# inser_temperature, insert_humidity, insert_luminous_Intensity, insert_smoke, insert_fire, insert_human_infrared
+
 
 app = creat_app(config.DevelopmentConfig)
 manager = Manager(app)

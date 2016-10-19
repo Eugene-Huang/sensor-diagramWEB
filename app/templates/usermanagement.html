@@ -42,17 +42,17 @@
         <div>
           <h1 class="page-header">用户管理</h1>
 
-          <h2 class="sub-header">User Info</h2>
+          <h2 class="sub-header">用户信息</h2>
           <div class="table-responsive">
             <table id="admin-table" class="display" cellspacing="0" width="100%">
               <caption>全部用户帐号</caption>
               <thead>
                   <tr>
-                    <th>User ID</th>
-                    <th>Role</th>
-                    <th>User Name</th>
+                    <th>用户ID</th>
+                    <th>用户角色</th>
+                    <th>用户名</th>
                     <th>Email</th>
-                    <th>Action</th>
+                    <th>操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -70,7 +70,7 @@
           <div class="row">
             <div class="col-md-4">
               <div class="page-header">
-                  <h2>Add user</h2>
+                  <h2>添加用户</h2>
                   {% for message in get_flashed_messages() %}
                     <div class="alert alert-warning">
                         <button type="button" class="close" data-dismiss="alert">&times;</button>

@@ -211,6 +211,7 @@ def main():
     thread5.start()
     thread6.start()
 
+
 if __name__ == '__main__':
     try:
         if SENSOR == 'temp':

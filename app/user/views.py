@@ -6,6 +6,7 @@ from datetime import datetime
 from ..fetch_temp import view_temp_data, get_latesttemp, get_lastdaytemp, get_lastweektemp, get_alltemp
 from ..fetch_humidity import view_humidity_data, get_latesthumidity, get_lastdayhumidity, get_lastweekhumidity, get_allhumidity
 from ..fetch_light import view_light_data, get_latestlight, get_lastdaylight, get_lastweeklight, get_alllight
+from ..fetch_mqtt import get_mqtttemp, get_mqtthumidity, get_mqttlight
 from . import user
 
 
@@ -28,7 +29,8 @@ def tempView():
 @user.route('/newtemp', methods=['GET'])
 @login_required
 def newTemp():
-    data = get_latesttemp()
+    # data = get_latesttemp()
+    data = get_mqtttemp()
     return data
 
 # 前一天数据
@@ -69,7 +71,8 @@ def humView():
 @user.route('/newhum', methods=['GET'])
 @login_required
 def newHum():
-    data = get_latesthumidity()
+    # data = get_latesthumidity()
+    data = get_mqtthumidity()
     return data
 
 
@@ -107,7 +110,8 @@ def lightView():
 @user.route('/newlight', methods=['GET'])
 @login_required
 def newLight():
-    data = get_latestlight()
+    # data = get_latestlight()
+    data = get_mqttlight()
     return data
 
 

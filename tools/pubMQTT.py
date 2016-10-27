@@ -11,7 +11,7 @@ import time
 MQTT_HOST = "10.22.85.190"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 60
-MQTT_TOPIC = 'test/temperature'
+MQTT_TOPIC = 'test/address'
 
 
 def on_publish(mqttp, userdata, mid):
@@ -36,9 +36,12 @@ mqttp.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
 
 while True:
     current_time = datetime.now()
-    temperature = float(format(random.uniform(5, 20), '.1f'))
-    current_time = time.mktime(current_time.timetuple()) * 1000
-    msg = [current_time, temperature]
+    value = float(format(random.uniform(5, 20), '.1f'))
+    sensor_type = random.choice(
+        ['temperature', 'humidity', 'light'])
+    sensor_node = random.randint(1, 5)
+    msg = {'sensor_type': sensor_type, 'value': value,
+           'sensor_node': sensor_node}
     msg = json.dumps(msg)
     try:
         mqttp.publish(MQTT_TOPIC, msg)

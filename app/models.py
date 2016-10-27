@@ -110,6 +110,20 @@ class User(UserMixin, db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+
+# MQTT
+
+
+class recvmqtt(db.Model):
+    __tablename__ = 'recvmqtt'
+    id = db.Column(db.Integer, primary_key=True)
+    sensor_type = db.Column(db.String(20))
+    value = db.Column(db.Float)
+    sensor_node = db.Column(db.String(20))
+    recv_time = db.Column(db.DateTime)
+    insert_time = db.Column(TIMESTAMP, server_default=func.now())
+
+
 # 温度
 
 

@@ -11,8 +11,9 @@ from ..models import User, Role, temperature, humidity
 from threading import Thread
 import sys
 
-sys.path.append("../../tools")
-from subMQTT import runMQTT
+sys.path.insert(0, "../..")
+from tools.subMQTT import runMQTT
+# from subMQTT import runMQTT
 
 
 current_time = datetime.utcnow()
@@ -67,9 +68,9 @@ def login():
             # 开启MQTT
             # 当用户登录后开始订阅MQTT
             # ================================
-            mqtt_task = Thread(target=runMQTT)
-            mqtt_task.daemon = True
-            mqtt_task.start()
+            # mqtt_task = Thread(target=runMQTT)
+            # mqtt_task.daemon = True
+            # mqtt_task.start()
             # ================================
             # 管理员角色对象
             admin = Role.query.filter_by(name='Admin').first()

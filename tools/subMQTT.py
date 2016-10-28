@@ -8,8 +8,8 @@ import sys
 import logging
 from datetime import datetime
 
-sys.path.append("../app")
-from connect_db import db
+sys.path.append("..")
+from app.connect_db import db
 
 
 logger = logging.getLogger(__name__)
@@ -131,6 +131,9 @@ def runMQTT():
         print 'Message: ' + str(payload)
         # 反序列化消息和数据
         data = json.loads(payload)
+        # =============================
+        # 如果是个列表，就迭代一下
+        # =============================
         # 解析数据
         TABLE = 'recvmqtt'
         sensor_type = data['sensor_type']
@@ -159,7 +162,7 @@ if __name__ == '__main__':
 
 
 # ======================================================
-# 没有打包成类的版本
+# 这是没有打包成类的版本
 # ======================================================
 # def on_connect(mqttc, userdata, flags, rc):
 #     print 'Connected with result code ' + str(rc)

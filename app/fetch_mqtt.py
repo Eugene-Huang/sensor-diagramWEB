@@ -40,11 +40,11 @@ def get_mqtt(sensor):
 
 
 def get_mqtttemp():
-    return get_mqtt('temperature')
+    return get_mqtt('temp')
 
 
 def get_mqtthumidity():
-    return get_mqtt('humidity')
+    return get_mqtt('hum')
 
 
 def get_mqttlight():

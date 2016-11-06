@@ -1,25 +1,65 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
+# ---------------------------------
+# 订阅MQTT消息，解析数据，插入临时表
+# 定时清空临时表
+# ---------------------------------
 
 import paho.mqtt.client as mqtt
+import MySQLdb
 import json
-import sys
+# import sys
 import logging
+import time
 from datetime import datetime
+from threading import Thread
 
-sys.path.append("..")
-from app.connect_db import db
+
+# sys.path.append("..")
+# from app.connect_db import db
 
 
 logger = logging.getLogger(__name__)
 
-MQTT_HOST = "10.22.85.190"
+SERVERHOST = 'localhost'
+# MQTT配置
+MQTT_HOST = SERVERHOST
 MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 60
-MQTT_TOPIC = 'test/address'
-USERNAME = 'test'
-PASSWORD = 'fuck'
+MQTT_TOPIC = 'SmartLab'
+USERNAME = 'zhifeng'
+PASSWORD = 'zhifeng523'
+
+# -----------------------------------------------------
+# 连接数据库
+try:
+    connect = MySQLdb.connect(
+        SERVERHOST, 'DBUSERNAME', 'DBPASSWORD', 'DBNAME')
+    connect.autocommit(True)
+except MySQLdb.Error as e:
+    raise e
+else:
+    print 'Connected to DB successful :)'
+    cur = connect.cursor()
+# -----------------------------------------------------
+
+
+def clear_db(interval):
+    '''
+    定时清空临时mqtt数据库数据
+    '''
+    RUNSATRT = True
+    sql = 'TRUNCATE recvmqtt'
+    while RUNSATRT:
+        try:
+            cur.execute(sql)
+            time.sleep(interval)
+        except MySQLdb.Error as e:
+            raise e
+
+
+# ---------------------------------------------------------
 
 
 class FuckMQTT(object):
@@ -112,12 +152,21 @@ class FuckMQTT(object):
 
     def subscribe(self):
         self._client.subscribe(MQTT_TOPIC)
+# ------------------------------------------------------------------------------
 
 
 def runMQTT():
+    '''
+    1.MQTT订阅，实时接收发布端的消息并解析数据插入到临时数据表，web端查询临时表数据做可视化
+    2.定时清空临时表数据
+    '''
     def connected(client, rc):
         print 'Connected to MQTT broker with result code ' + str(rc)
         client.subscribe()
+        # 开启一条辅助线程
+        side_task = Thread(target=clear_db, args=(60,))
+        side_task.daemon = True
+        side_task.start()
 
     def message(client, topic, payload, qos):
         '''
@@ -125,97 +174,45 @@ def runMQTT():
         当接收到订阅的主题发布的消息时，触发这个函数
         接受一条消息触发一次
         '''
-        # 打印消息
-        print 'Topic: ' + str(topic)
-        print 'QoS: ' + str(qos)
-        print 'Message: ' + str(payload)
         # 反序列化消息和数据
-        data = json.loads(payload)
+        recv_messages = json.loads(payload)
+        # 接收到消息的时间
+        # received_time = recv_messages['datetime']
+        received_time = datetime.now()
+        # 打印消息
+        # print '----------------------------' * 3
+        # print 'Topic: ' + str(topic)
+        # print 'QoS: ' + str(qos)
+        # print 'Message: ' + str(payload)
+        # print 'Received time: ' + str(received_time)
+        # print '----------------------------' * 3
+        # 插入的数据表
+        TABLE = 'recvmqtt'
+
         # =============================
         # 如果是个列表，就迭代一下
+        whole_data = recv_messages['items']
+        for data in whole_data:
+            sensor_type = data['type']
+            value = data['value']
+            sensor_node = data['id']
+            print sensor_type, value, sensor_node
         # =============================
-        # 解析数据
-        TABLE = 'recvmqtt'
-        sensor_type = data['sensor_type']
-        value = data['value']
-        sensor_node = data['sensor_node']
-        # 设定接收到消息的时间
-        received_time = datetime.now()
-        # 插入数据库
-        sql = "INSERT INTO {0}(sensor_type, value, sensor_node, recv_time) VALUE(\'{1}\', \'{2}\', \'{3}\', \'{4}\')".format(
-            TABLE, sensor_type, value, sensor_node, received_time)
-        db.execute_db(sql)
+            # 插入数据库
+            sql = "INSERT INTO {0}(sensor_type, value, sensor_node, recv_time) VALUE(\'{1}\', \'{2}\', \'{3}\', \'{4}\')".format(
+                TABLE, sensor_type, value, sensor_node, received_time)
+            cur.execute(sql)
 
-    client = FuckMQTT(USERNAME, PASSWORD, '10.22.85.190')
+    client = FuckMQTT(USERNAME, PASSWORD, MQTT_HOST)
     client.on_connect = connected
     client.on_message = message
-
     try:
         client.connect()
         client.loop_blocking()
-    except:
+    except KeyboardInterrupt:
         client.disconnect()
+        print 'Close connect to MQTT broker :('
 
 
 if __name__ == '__main__':
     runMQTT()
-
-
-# ======================================================
-# 这是没有打包成类的版本
-# ======================================================
-# def on_connect(mqttc, userdata, flags, rc):
-#     print 'Connected with result code ' + str(rc)
-#     mqttc.subscribe(MQTT_TOPIC)
-
-
-# def on_message(mqttc, userdata, msg):
-#     '''
-#     回调函数
-#     当接收到订阅的主题发布的消息时，触发这个函数
-#     接受一条消息触发一次
-#     '''
-#     # 打印消息
-#     print 'Topic: ' + str(msg.topic)
-#     print 'QoS: ' + str(msg.qos)
-#     print 'Message: ' + str(msg.payload)
-#     # 反序列化消息和数据
-#     data = json.loads(msg.payload)
-#     # 解析数据
-#     TABLE = 'recvmqtt'
-#     sensor_type = data['sensor_type']
-#     value = data['value']
-#     sensor_node = data['sensor_node']
-#     # 设定接收到消息的时间
-#     received_time = datetime.now()
-#     # 插入数据库
-#     sql = "INSERT INTO {0}(sensor_type, value, sensor_node, recv_time) VALUE(\'{1}\', \'{2}\', \'{3}\', \'{4}\')".format(
-#         TABLE, sensor_type, value, sensor_node, received_time)
-#     db.execute_db(sql)
-
-
-# def on_subscribe(mosq, obi, mid, granted_qos):
-# print 'Sunscribed to Topic: ' + MQTT_TOPIC + ' with QoS: ' +
-# str(granted_qos)
-
-
-# def on_disconnect(mqttc, userdata, rc):
-#     if rc != 0:
-#         print 'Unexpected disconnection.'
-#     else:
-#         print 'Disconnected-_-|'
-
-
-# mqttc = mqtt.Client()
-
-# mqttc.on_connect = on_connect
-# mqttc.on_message = on_message
-# mqttc.on_subscribe = on_subscribe
-# mqttc.on_disconnect = on_disconnect
-
-# try:
-#     mqttc.username_pw_set('test', password='fuck')
-#     mqttc.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
-#     mqttc.loop_forever()
-# except KeyboardInterrupt:
-#     mqttc.disconnect()

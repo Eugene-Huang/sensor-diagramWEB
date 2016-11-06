@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-sys.path.append("..")  # 为了导入上级目录中的模块
+sys.path.append("../")  # 为了导入上级目录中的模块
 from app import models
 
 

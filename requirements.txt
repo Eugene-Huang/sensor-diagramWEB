@@ -19,6 +19,7 @@ Jinja2==2.8
 Mako==1.0.4
 MarkupSafe==0.23
 MySQL-python==1.2.5
+paho-mqtt==1.2
 pathlib2==2.1.0
 pickleshare==0.7.3
 prompt-toolkit==1.0.5

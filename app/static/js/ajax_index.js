@@ -15,7 +15,7 @@
           $("#cur-humidity").text(data[1]);
       },
       error: function () {
-          alert("Request failed!");
+          console.log("Request failed!");
       },
       cache: false
     });

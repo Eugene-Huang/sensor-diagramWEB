@@ -14,7 +14,7 @@
         chart.series[0].addPoint(data,true,true);
       },
       error: function () {
-        alert('Request failed!!');
+        console.log('Request failed!!');
       },
       cache: false
     });

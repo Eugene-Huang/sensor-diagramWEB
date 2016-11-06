@@ -6,7 +6,7 @@
 class Config(object):
     DEBUG = False
     SECRET_KEY = 'cDCDad5dFee25af54ED3Fd258A77cf2F'
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:123456@localhost/smarthome'
+    SQLALCHEMY_DATABASE_URI = 'mysql://zhifeng:zhifengmysql@115.159.190.88/smarthome'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     WEB_ADMIN = 'zhifeng523'
 

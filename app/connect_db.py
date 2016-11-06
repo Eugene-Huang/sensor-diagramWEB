@@ -2,9 +2,9 @@
 
 import MySQLdb
 
-HOSTNAME = 'localhost'
-USER = 'root'
-PASSWORD = '123456'
+HOSTNAME = "loaclhost"
+USER = 'zhifeng'
+PASSWORD = 'zhifengmysql'
 DBNAME = 'smarthome'
 
 

@@ -42,14 +42,14 @@
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
             <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
-            <li><a href="#">Reports</a></li>
+            <!-- <li><a href="#">Reports</a></li>
             <li><a href="#">Logs</a></li>
-            <li><a href="#">Export</a></li>
+            <li><a href="#">Export</a></li> -->
           </ul>
           <ul class="nav nav-sidebar">
             <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">更多数据<b class="caret"></b></a>
                 <ul class="dropdown-menu">
-                  <li><a href="/admin/viewdigital">节点数据</a></li>
+                  <li><a href="/admin/viewdigital">节点搜索</a></li>
                 </ul>
             </li>
           </ul>
@@ -162,10 +162,10 @@
                   {data: "address"}
                 ]
             }).api();
-            //三秒刷新一次表格数据
+            //5秒刷新一次表格数据
             setInterval( function () {
                 table.ajax.reload( null, false ); // user paging is not reset on reload
-            }, 3000 );
+            }, 5000 );
         } );
 </script>
 <script type="text/javascript">

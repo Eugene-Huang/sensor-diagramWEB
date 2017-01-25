@@ -6,14 +6,7 @@ from flask_login import login_user, logout_user, login_required
 from datetime import datetime
 from sqlalchemy import desc
 from . import main
-# from .. import db
 from ..models import User, Role, temperature, humidity
-from threading import Thread
-import sys
-
-sys.path.insert(0, "../..")
-from tools.subMQTT import runMQTT
-# from subMQTT import runMQTT
 
 
 current_time = datetime.utcnow()
@@ -64,14 +57,6 @@ def login():
             login_user(user)  # 用户登录
             flash(u'You are logged in, Welcome, {0}'.format(
                 user.username), 'sucessed')
-            # ================================
-            # 开启MQTT
-            # 当用户登录后开始订阅MQTT
-            # ================================
-            # mqtt_task = Thread(target=runMQTT)
-            # mqtt_task.daemon = True
-            # mqtt_task.start()
-            # ================================
             # 管理员角色对象
             admin = Role.query.filter_by(name='Admin').first()
             if user.role_id == admin.id:  # 管理员用户登录即转到控制台页面

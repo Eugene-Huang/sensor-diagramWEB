@@ -36,7 +36,7 @@
 {% endblock %}
 
 {% block page_content %}
-    
+
     <div class="container-fluid">
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
@@ -80,17 +80,17 @@
             <div class="col-xs-6 col-sm-3 placeholder">
               <img src="../static/images/temperature01.png" class="img-responsive" alt="Temperature">
               <h4>温度</h4>
-              <span class="text-muted"><a href="{{ url_for('user.tempView') }}">Go to see</a></span>
+              <span class="text-muted"><a href="{{ url_for('user.temperature') }}">Go to see</a></span>
             </div>
             <div class="col-xs-6 col-sm-3 placeholder">
               <img src="../static/images/humidity.png" class="img-responsive" alt="Humidity">
               <h4>湿度</h4>
-              <span class="text-muted"><a href="{{ url_for('user.humView') }}">Go to see</a></span>
+              <span class="text-muted"><a href="{{ url_for('user.humidity') }}">Go to see</a></span>
             </div>
             <div class="col-xs-6 col-sm-3 placeholder">
               <img src="../static/images/light.png" class="img-responsive" alt="Light">
               <h4>光照</h4>
-              <span class="text-muted"><a href="{{ url_for('user.lightView') }}">Go to see</a></span>
+              <span class="text-muted"><a href="{{ url_for('user.lux') }}">Go to see</a></span>
             </div>
           </div>
 

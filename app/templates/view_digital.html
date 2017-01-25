@@ -34,7 +34,7 @@
       <div class="col-md-2">
         <div class="page-header">
             <h3>查找</h3>
-            
+
         </div>
         <div class="bs-callout bs-callout-primary">
           <h4>存在节点</h4>
@@ -58,26 +58,38 @@
               {{ message }}
           </div>
         {% endfor %}
-        <div class="col-md-5">
-          <div id="fire-pie" style="min-width:400px;height:400px"></div>
-          <div id="human-pie" style="min-width:400px;height:400px"></div>
-        </div>
-        <div class="col-md-5">
-          <div id="smoke-pie" style="min-width:400px;height:400px"></div>
-        </div>
       </div>
-    </div>
+  </div>
 </div>
-<div id="fire-line"></div><br><br>
-<div id="smoke-line"></div><br><br>
-<div id="human-line"></div>
+<br><br>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-4">
+      <div id="fire-pie" style="min-width:400px;height:400px"></div>
+    </div>
+    <div class="col-md-8">
+      <div id="fire-line"></div><br><br>
+    </div>
+    <div class="col-md-4">
+      <div id="human-pie" style="min-width:400px;height:400px"></div>
+    </div>
+    <div class="col-md-8">
+      <div id="human-line"></div><br><br>
+    </div>
+    <div class="col-md-4">
+      <div id="smoke-pie" style="min-width:400px;height:400px"></div>
+    </div>
+    <div class="col-md-8">
+      <div id="smoke-line"></div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
-<!-- // <script type="text/javascript" src="../static/js/jquery-1.8.3.min.js"></script> -->
-<script type="text/javascript" src="../static/js/highstock.js"></script>
-<script type="text/javascript" src="../static/js/exporting.js"></script>
+<script type="text/javascript" src="../static/js/cdn/highstock.js"></script>
+<script type="text/javascript" src="../static/js/cdn/exporting.js"></script>
 <script type="text/javascript">
 //获取后台数据
 var data = {{ data|safe }}

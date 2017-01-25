@@ -1,136 +1,351 @@
-# -*- coding: utf8 -*-
+# # -*- coding: utf8 -*-
 
-from flask import render_template
+from flask import render_template, request
 from flask_login import login_required
 from datetime import datetime
-from ..fetch_temp import view_temp_data, get_latesttemp, get_lastdaytemp, get_lastweektemp, get_alltemp
-from ..fetch_humidity import view_humidity_data, get_latesthumidity, get_lastdayhumidity, get_lastweekhumidity, get_allhumidity
-from ..fetch_light import view_light_data, get_latestlight, get_lastdaylight, get_lastweeklight, get_alllight
-from ..fetch_mqtt import get_mqtttemp, get_mqtthumidity, get_mqttlight
+import time
+import json
 from . import user
+from .. import connectDB
 
 
 current_time = datetime.utcnow()
 
-# 温度
+db = connectDB.ConnectDB()
+conn = db.connect()
+cur = conn.cursor()
 
-# 温度监控，可视化数据
+
+# ========================= 温度显示页面
+
+
+@user.route('/temperature', methods=['GET', 'POST'])
+@login_required
+def temperature():
+    return render_template('temperature.html', current_time=current_time)
 
 
 @user.route('/tempview', methods=['GET', 'POST'])
 @login_required
 def tempView():
-    data = view_temp_data()
-    return render_template('temperature.html', data=data, current_time=current_time)
+    node = request.form.get('node', 1, type=int)
+    sql = 'SELECT time, value FROM temperature WHERE node={} LIMIT 20'.format(
+        node)
+    cur.execute(sql)
+    result = cur.fetchall()
+    if result:
+        data = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+                for item in result]
+        return json.dumps(data)
+    else:
+        return json.dumps([0, 0])
 
-# get the latest data use ajax
+# ---------------------最新一条温度数据
 
 
-@user.route('/newtemp', methods=['GET'])
+@user.route('/newtemp', methods=['GET', 'POST'])
 @login_required
 def newTemp():
-    # data = get_latesttemp()
-    data = get_mqtttemp()
-    return data
+    node = request.args.get('node', 1, type=int)
+    sql = 'SELECT time, value FROM temperature WHERE node={} ORDER BY time LIMIT 1'.format(
+        node)
+    cur.execute(sql)
+    result = cur.fetchone()
+    if result:
+        data = [time.mktime(result[0].timetuple()) * 1000, result[1]]
+        return json.dumps(data)
+    else:
+        return json.dumps([0, 0])
 
-# 前一天数据
+# ------------------------前一天温度数据
 
 
-@user.route('/lastdaytemp', methods=['GET'])
+@user.route('/lastdaytemp', methods=['GET', 'POST'])
 @login_required
 def lastdayTemp():
-    data = get_lastdaytemp()
-    return data
+    node = request.args.get('node', 1, type=int)
+    sql = 'SELECT time, value FROM temperature WHERE node={} AND DATE(time) = DATE_SUB(CURDATE(), INTERVAL 1 day)'.format(
+        node)
+    cur.execute(sql)
+    result = cur.fetchall()
+    if result:
+        data = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+                for item in result]
+        return json.dumps(data)
+    else:
+        return json.dumps([0, 0])
 
-# 上一周数据
+# -------------------上一周温度数据
 
 
-@user.route('/lastweektemp', methods=['GET'])
+@user.route('/lastweektemp', methods=['GET', 'POST'])
 @login_required
 def lastweekTemp():
-    data = get_lastweektemp()
-    return data
+    minv = []
+    maxv = []
+    node = request.args.get('node', 1, type=int)
+    sql = 'SELECT time, value FROM temperature WHERE node={} AND YEARWEEK(date_format(time, "%Y-%m-%d")) = YEARWEEK(now()) - 1'.format(
+        node)
+    cur.execute(sql)
+    result = cur.fetchall()
+    if result:
+        mon = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 1]
+        tue = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 2]
+        wed = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 3]
+        thur = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+                for item in result if item[0].isoweekday() == 4]
+        fri = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 5]
+        sat = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 6]
+        sun = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 7]
+        for workday in [mon, tue, wed, thur, fri, sat, sun]:
+            if len(workday):
+                minv.append(min(workday, key=lambda x: x[1]))
+                maxv.append(max(workday, key=lambda x: x[1]))
+        return json.dumps([minv, maxv])
+    else:
+        return json.dumps([0, 0])
+
+# ---------------------全部温度数据
 
 
-@user.route('/alltemp', methods=['GET'])
+@user.route('/alltemp', methods=['GET', 'POST'])
 @login_required
 def allTemp():
-    data = get_alltemp()
-    return data
+    node = request.args.get('node', 1, type=int)
+    sql = 'SELECT time, value FROM temperature WHERE node={}'.format(
+        node)
+    cur.execute(sql)
+    result = cur.fetchall()
+    if result:
+        data = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+                for item in result]
+        return json.dumps(data)
+    else:
+        return json.dumps([0, 0])
 
-# # 湿度
+# =========================== 湿度显示页面
+
+
+@user.route('/humidity', methods=['GET', 'POST'])
+@login_required
+def humidity():
+    return render_template('humidity.html',
+                           current_time=current_time)
 
 
 @user.route('/humview', methods=['GET', 'POST'])
 @login_required
-def humView():
-    data = view_humidity_data()
-    return render_template('humidity.html', data=data, current_time=current_time)
+def humView(node=1):
+    sql = 'SELECT time, value FROM humidity WHERE node={} LIMIT 20'.format(
+        node)
+    cur.execute(sql)
+    result = cur.fetchall()
+    if result:
+        data = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+                for item in result]
+        return json.dumps(data)
+    else:
+        return json.dumps([0, 0])
 
 
-@user.route('/newhum', methods=['GET'])
+# ---------------------最新一条湿度数据
+
+
+@user.route('/newhum', methods=['GET', 'POST'])
 @login_required
-def newHum():
-    # data = get_latesthumidity()
-    data = get_mqtthumidity()
-    return data
+def newHum(node=1):
+    sql = 'SELECT time, value FROM humidity WHERE node={} ORDER BY time LIMIT 1'.format(
+        node)
+    cur.execute(sql)
+    result = cur.fetchone()
+    if result:
+        data = [time.mktime(result[0].timetuple()) * 1000, result[1]]
+        return json.dumps(data)
+    else:
+        return json.dumps([0, 0])
 
 
-@user.route('/lastdayhum', methods=['GET'])
+# ---------------------上一天湿度数据
+
+
+@user.route('/lastdayhum', methods=['GET', 'POST'])
 @login_required
-def lastdayHum():
-    data = get_lastdayhumidity()
-    return data
+def lastdayHum(node=1):
+    sql = 'SELECT time, value FROM humidity WHERE node={} AND DATE(time) = DATE_SUB(CURDATE(), INTERVAL 1 day)'.format(
+        node)
+    cur.execute(sql)
+    result = cur.fetchall()
+    if result:
+        data = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+                for item in result]
+        return json.dumps(data)
+    else:
+        return json.dumps([0, 0])
+
+# ---------------------上一周湿度数据
 
 
-@user.route('/lastweekhum', methods=['GET'])
+@user.route('/lastweekhum', methods=['GET', 'POST'])
 @login_required
-def lastweekHum():
-    data = get_lastweekhumidity()
-    return data
+def lastweekHum(node=1):
+    minv = []
+    maxv = []
+    sql = 'SELECT time, value FROM humidity WHERE node={} AND YEARWEEK(date_format(time, "%Y-%m-%d")) = YEARWEEK(now()) - 1'.format(
+        node)
+    cur.execute(sql)
+    result = cur.fetchall()
+    if result:
+        mon = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 1]
+        tue = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 2]
+        wed = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 3]
+        thur = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+                for item in result if item[0].isoweekday() == 4]
+        fri = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 5]
+        sat = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 6]
+        sun = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 7]
+        for workday in [mon, tue, wed, thur, fri, sat, sun]:
+            if len(workday):
+                minv.append(min(workday, key=lambda x: x[1]))
+                maxv.append(max(workday, key=lambda x: x[1]))
+        return json.dumps([minv, maxv])
+    else:
+        return json.dumps([0, 0])
 
 
-@user.route('/allhum', methods=['GET'])
+@user.route('/allhum', methods=['GET', 'POST'])
 @login_required
-def allHum():
-    data = get_allhumidity()
-    return data
+def allHum(node=1):
+    sql = 'SELECT time, value FROM humidity WHERE node={}'.format(
+        node)
+    cur.execute(sql)
+    result = cur.fetchall()
+    if result:
+        data = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+                for item in result]
+        return json.dumps(data)
+    else:
+        return json.dumps([0, 0])
 
 
-# # 光照值
+# ============================ 光照显示页面
+
+@user.route('/lux', methods=['GET', 'POST'])
+@login_required
+def lux():
+    return render_template('light.html',
+                           current_time=current_time)
 
 
 @user.route('/lightview', methods=['GET', 'POST'])
 @login_required
-def lightView():
-    data = view_light_data()
-    return render_template('light.html', data=data, current_time=current_time)
+def lightView(node=1):
+    sql = 'SELECT time, value FROM luminous_intensity WHERE node={} LIMIT 20'.format(
+        node)
+    cur.execute(sql)
+    result = cur.fetchall()
+    if result:
+        data = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+                for item in result]
+        return json.dumps(data)
+    else:
+        return json.dumps([0, 0])
 
 
-@user.route('/newlight', methods=['GET'])
+# ---------------------最新一条光照值数据
+
+
+@user.route('/newlight', methods=['GET', 'POST'])
 @login_required
-def newLight():
-    # data = get_latestlight()
-    data = get_mqttlight()
-    return data
+def newLight(node=1):
+    sql = 'SELECT time, value FROM luminous_intensity WHERE node={} ORDER BY time LIMIT 1'.format(
+        node)
+    cur.execute(sql)
+    result = cur.fetchone()
+    if result:
+        data = [time.mktime(result[0].timetuple()) * 1000, result[1]]
+        return json.dumps(data)
+    else:
+        return json.dumps([0, 0])
+
+# ---------------------上一天光照值数据
 
 
-@user.route('/lastdaylight', methods=['GET'])
+@user.route('/lastdaylight', methods=['GET', 'POST'])
 @login_required
-def lastdayLight():
-    data = get_lastdaylight()
-    return data
+def lastdayLight(node=1):
+    sql = 'SELECT time, value FROM luminous_intensity WHERE node={} AND DATE(time) = DATE_SUB(CURDATE(), INTERVAL 1 day)'.format(
+        node)
+    cur.execute(sql)
+    result = cur.fetchall()
+    if result:
+        data = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+                for item in result]
+        return json.dumps(data)
+    else:
+        return json.dumps([0, 0])
+
+# ---------------------上一周光照值数据
 
 
-@user.route('/lastweeklight', methods=['GET'])
+@user.route('/lastweeklight', methods=['GET', 'POST'])
 @login_required
-def lastweekLight():
-    data = get_lastweeklight()
-    return data
+def lastweekLight(node=1):
+    minv = []
+    maxv = []
+    sql = 'SELECT time, value FROM luminous_intensity WHERE node={} AND YEARWEEK(date_format(time, "%Y-%m-%d")) = YEARWEEK(now()) - 1'.format(
+        node)
+    cur.execute(sql)
+    result = cur.fetchall()
+    if result:
+        mon = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 1]
+        tue = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 2]
+        wed = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 3]
+        thur = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+                for item in result if item[0].isoweekday() == 4]
+        fri = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 5]
+        sat = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 6]
+        sun = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+               for item in result if item[0].isoweekday() == 7]
+        for workday in [mon, tue, wed, thur, fri, sat, sun]:
+            if len(workday):
+                minv.append(min(workday, key=lambda x: x[1]))
+                maxv.append(max(workday, key=lambda x: x[1]))
+        return json.dumps([minv, maxv])
+    else:
+        return json.dumps([0, 0])
 
 
-@user.route('/alllight', methods=['GET'])
+@user.route('/alllight', methods=['GET', 'POST'])
 @login_required
-def allLight():
-    data = get_alllight()
-    return data
+def allLight(node=1):
+    sql = 'SELECT time, value FROM luminous_intensity WHERE node={}'.format(
+        node)
+    cur.execute(sql)
+    result = cur.fetchall()
+    if result:
+        data = [[time.mktime(item[0].timetuple()) * 1000, item[1]]
+                for item in result]
+        return json.dumps(data)
+    else:
+        return json.dumps([0, 0])
+
+
+if __name__ == '__main__':
+    pass

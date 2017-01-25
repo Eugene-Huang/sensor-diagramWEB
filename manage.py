@@ -36,8 +36,12 @@ def deploy(deploy_type):
         Role.insert_roles()  # 创建角色
         User.insert_users()  # 创建默认用户帐号
 
+    # 重置数据库
     if deploy_type == 'reset':
         db.drop_all()
+        db.create_all()
+        Role.insert_roles()
+        User.insert_users()
 
 
 if __name__ == '__main__':

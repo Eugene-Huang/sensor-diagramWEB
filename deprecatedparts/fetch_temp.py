@@ -1,7 +1,4 @@
-# -*- coding: UTF-8 -*-
-# -----------------------
-# 请手动把温度看成光照值
-# -----------------------
+# # -*- coding: UTF-8 -*-
 
 from connect_db import db  # model about connect db
 import MySQLdb
@@ -10,7 +7,8 @@ import time
 from operator import itemgetter
 from datetime import datetime
 
-TABLE = 'luminous_intensity'  # 查询的表
+
+TABLE = 'temperature'  # 查询的表
 ITEM = 'value, time'  # 查询的值
 FILTER = ''            # 过滤器
 
@@ -45,7 +43,7 @@ def bolcktime(argItem, argTable, argFilter):
 # 显示时间曲线表
 # 默认显示最新15条数据
 
-def view_light_data():
+def view_temp_data():
 
     FILTER = 'ORDER BY time  DESC LIMIT 20'  # 选取最近时间20条数据
     data = bolcktime(ITEM, TABLE, FILTER)
@@ -56,7 +54,7 @@ def view_light_data():
 # 所有温度
 
 
-def get_alllight():
+def get_alltemp():
     FILTER = 'ORDER BY TIME'
     data = bolcktime(ITEM, TABLE, FILTER)
     data = json.loads(data)
@@ -67,7 +65,7 @@ def get_alllight():
 # 选取最新一条数据
 
 
-def get_latestlight():
+def get_latesttemp():
 
     FILTER = 'ORDER BY time DESC LIMIT 1'
     sql = 'SELECT {0} FROM {1} '.format(ITEM, TABLE) + FILTER
@@ -93,7 +91,7 @@ def get_latestlight():
 
 # 前一天的数据
 # 按平均选取24条数据，不足则选取全部
-def get_lastdaylight():
+def get_lastdaytemp():
 
     FILTER = 'WHERE DATE(time) = DATE_SUB(CURDATE(), INTERVAL 1 day)'
     data = bolcktime(ITEM, TABLE, FILTER)
@@ -137,7 +135,7 @@ def dayOfWeek(week_min, week_max, day_of_week, filter_end):
 
 # 上周的数据
 
-def get_lastweeklight():
+def get_lastweektemp():
     week_min = []
     week_max = []
     # sql: 格式化时间戳返回一年中当前周数|当前周数- 1，即上周
@@ -183,4 +181,8 @@ def get_lastweeklight():
 # 测试
 
 if __name__ == '__main__':
+    # print view_temp_data()
+    # print type(view_temp_data())
+    # print get_latest()
+    # print type(get_latest())
     pass

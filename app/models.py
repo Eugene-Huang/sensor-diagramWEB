@@ -111,19 +111,6 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-# MQTT
-
-
-class recvmqtt(db.Model):
-    __tablename__ = 'recvmqtt'
-    id = db.Column(db.Integer, primary_key=True)
-    sensor_type = db.Column(db.String(20))
-    value = db.Column(db.Float)
-    sensor_node = db.Column(db.String(20))
-    recv_time = db.Column(db.DateTime)
-    insert_time = db.Column(TIMESTAMP, server_default=func.now())
-
-
 # 温度
 
 
@@ -131,7 +118,7 @@ class temperature(db.Model):
     __tablename__ = 'temperature'
     id = db.Column(db.Integer, primary_key=True)
     value = db.Column(db.Float)
-    unit = db.Column(db.String(10))
+    # unit = db.Column(db.String(10))
     node = db.Column(db.String(20))
     time = db.Column(TIMESTAMP, server_default=func.now())
     address = db.Column(db.String(80))
@@ -143,24 +130,23 @@ class humidity(db.Model):
     __tablename__ = 'humidity'
     id = db.Column(db.Integer, primary_key=True)
     value = db.Column(db.Float)
-    unit = db.Column(db.String(10))
+    # unit = db.Column(db.String(10))
     node = db.Column(db.String(20))
     time = db.Column(TIMESTAMP, server_default=func.now())
     address = db.Column(db.String(80))
 
-# 光照值
+# 光照
 
 
 class luminousIntensity(db.Model):
     __tablename__ = 'luminous_intensity'
     id = db.Column(db.Integer, primary_key=True)
     value = db.Column(db.Float)
-    unit = db.Column(db.String(10))
+    # unit = db.Column(db.String(10))
     node = db.Column(db.String(20))
     time = db.Column(TIMESTAMP, server_default=func.now())
     address = db.Column(db.String(80))
 
-# #数字量
 
 # 人体红外
 

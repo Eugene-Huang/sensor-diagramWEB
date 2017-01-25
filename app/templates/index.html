@@ -58,16 +58,16 @@
                         <h1>Welcome SmartLaboratory</h1>
                         <h3><a href="/home" class="btn btn-primary btn-lg" role="button">Go home</a></h3>
                         <hr class="intro-divider">
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-md-4"></div>
-                            <div class="col-md-1"><a href="{{ url_for('user.tempView') }}"><img src="../static/images/temperature-md-blue.png"></a></div>
-                            <div class="col-md-2"><a href="{{ url_for('user.humView') }}"><img src="../static/images/humidity-md-blue.png"></a></div>
-                            <div class="col-md-1"><a href="{{ url_for('user.lightView') }}"><img src="../static/images/light-md-blue.png"></a></div>
+                            <div class="col-md-1"><a href="{{ url_for('user.temperature') }}"><img src="../static/images/temperature-md-blue.png"></a></div>
+                            <div class="col-md-2"><a href="{{ url_for('user.humidity') }}"><img src="../static/images/humidity-md-blue.png"></a></div>
+                            <div class="col-md-1"><a href="{{ url_for('user.lux') }}"><img src="../static/images/light-md-blue.png"></a></div>
                             <div class="col-md-4"></div>
-                        </div>
+                        </div> -->
                             <h4>Temperature:<span id='cur-temperature'></span>°C</h4>
                             <h4>Humidity:<span id='cur-humidity'></span>°</h4>
-                            
+
                     </div>
                 </div>
             </div>
@@ -93,7 +93,7 @@
             </div>
         </div>
     </footer>
-    
+
     {% block scripts %}
         {{ super() }}
         <script type="text/javascript" src='../static/js/ajax_index.js'></script>

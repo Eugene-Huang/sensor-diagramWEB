@@ -1,49 +1,73 @@
-#!/usr/bin/env python
-# -*- coding: utf8 -*-
+# -*- coding: UTF-8 -*-
 
-# ---------------------------------
-# 订阅MQTT消息，解析数据，插入临时表
-# 定时清空临时表
-# ---------------------------------
 
-import paho.mqtt.client as mqtt
-import json
+import ConfigParser
+import MySQLdb
 import logging
+import json
+from subprocess import os
+import paho.mqtt.client as mqttc
 
 
-# sys.path.append("..")
-# from app.connect_db import db
-
+MQTT_KEEPALIVE_INTERVAL = 60
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
-SERVERHOST = 'localhost'
-# MQTT配置
-MQTT_HOST = SERVERHOST
-MQTT_PORT = 1883
-MQTT_KEEPALIVE_INTERVAL = 60
-MQTT_TOPIC = 'SmartLab'
-USERNAME = 'zhifeng'
-PASSWORD = 'zhifeng523'
+sh = logging.StreamHandler()
+fmt = '%(asctime)s - %(threadName)s - %(levelname)s > %(message)s'
+formatter = logging.Formatter(fmt)
+sh.setFormatter(formatter)
+
+logger.addHandler(sh)
 
 
-class FuckMQTT(object):
-    """docstring for FuckMQTT"""
+class ConnectDB(object):
 
-    def __init__(self, username, password, host, port=1883):
-        self._username = username
-        self._password = password
-        self._host = host
-        self._port = port
-        # Initialize event callbacks to be None so theydon't fire
+    def __init__(self):
+        config = ConfigParser.ConfigParser()
+        # config.read(os.path.join(os.path.dirname(os.getcwd()), 'db.conf'))
+        config.read(os.path.join(os.getcwd(), 'db.conf'))
+        # logger.debug(os.path.join(os.getcwd(), 'db.conf'))
+        self._dbhost = config.get('db', 'DBHOST')
+        self._dbname = config.get('db', 'DBNAME')
+        self._dbuser = config.get('db', 'DBUSER')
+        self._passwd = config.get('db', 'PASSWORD')
+
+    def connect(self):
+        try:
+            conn = MySQLdb.connect(
+                self._dbhost, self._dbuser, self._passwd, self._dbname)
+            logger.debug('connect mysql succesfully')
+            conn.autocommit(True)
+        except MySQLdb.Error as e:
+            raise e
+        return conn
+
+
+class PyMQTT(object):
+
+    def __init__(self):
+        config = ConfigParser.ConfigParser()
+        # config.read(os.path.join(os.getcwd(), 'db.conf'))
+        config.read(os.path.join(os.path.dirname(os.getcwd()), 'db.conf'))
+        logger.debug(os.path.join(os.path.dirname(os.getcwd()), 'db.conf'))
+        self._mqtthost = config.get('mosquitto', 'MQTT_HOST')
+        self._mqttport = config.get('mosquitto', 'MQTT_PORT')
+        self._mqtttopic = config.get('mosquitto', 'MQTT_TOPIC')
+        self._username = config.get('mosquitto', 'USERNAME')
+        self._passwd = config.get('mosquitto', 'PASSWORD')
+        # Initialize event callbacks to be None so they don't fire
         self.on_connect = None
         self.on_disconnect = None
+        self.on_subscribe = None
         self.on_message = None
         # Initialize MQTT client
-        self._client = mqtt.Client()
-        self._client.username_pw_set(username, password)
+        self._client = mqttc.Client()
+        self._client.username_pw_set(self._username, self._passwd)
         self._client.on_connect = self._mqtt_connect
         self._client.on_disconnect = self._mqtt_disconnect
+        self._client.on_subscribe = self._mqtt_subscribe
         self._client.on_message = self._mqtt_message
         self._connected = False
 
@@ -55,7 +79,7 @@ class FuckMQTT(object):
             raise RuntimeError(
                 'Error connecting to MQTT broker with rc: {0}'.format(rc))
         if self.on_connect is not None:
-            self.on_connect(self, rc)
+            self.on_connect(self)
 
     def _mqtt_disconnect(self, client, userdata, rc):
         logger.debug('Client on_disconnect called.')
@@ -68,6 +92,11 @@ class FuckMQTT(object):
         # Call the on_disconnect callback if available.
         if self.on_disconnect is not None:
             self.on_disconnect(self)
+
+    def _mqtt_subscribe(self, client, userdata, mid, granted_qos):
+        logger.debug('Client on_subscribe called')
+        if self.on_subscribe is not None:
+            self.on_subscribe(self)
 
     def _mqtt_message(self, client, userdata, msg):
         '''
@@ -89,7 +118,7 @@ class FuckMQTT(object):
         if self._connected:
             return
         # Connect to the Adafruit IO MQTT service.
-        self._client.connect(self._host, port=self._port,
+        self._client.connect(self._mqtthost, port=self._mqttport,
                              keepalive=MQTT_KEEPALIVE_INTERVAL, **kwargs)
 
     def is_connected(self):
@@ -116,56 +145,22 @@ class FuckMQTT(object):
         self._client.loop(timeout=timeout_sec)
 
     def subscribe(self):
-        self._client.subscribe(MQTT_TOPIC)
-# ------------------------------------------------------------------------------
-
-
-def runMQTT():
-    '''
-    1.MQTT订阅，实时接收发布端的消息并解析数据插入到临时数据表，web端查询临时表数据做可视化
-    2.定时清空临时表数据
-    '''
-    def connected(client, rc):
-        print 'Connected to MQTT broker with result code ' + str(rc)
-        client.subscribe()
-
-    def message(client, topic, payload, qos):
-        '''
-        回调函数
-        当接收到订阅的主题发布的消息时，触发这个函数
-        接受一条消息触发一次
-        '''
-        # 反序列化消息和数据
-        recv_messages = json.loads(payload)
-        # 接收到消息的时间
-        # received_time = recv_messages['datetime']
-
-        # 打印消息
-        # print '----------------------------' * 3
-        # print 'Topic: ' + str(topic)
-        # print 'QoS: ' + str(qos)
-        # print 'Message: ' + str(payload)
-        # print 'Received time: ' + str(received_time)
-        # print '----------------------------' * 3
-
-        # 如果是个列表，就迭代一下
-        whole_data = recv_messages['items']
-        for data in whole_data:
-            sensor_type = data['type']
-            value = data['value']
-            sensor_node = data['id']
-            print sensor_type, value, sensor_node
-
-    client = FuckMQTT(USERNAME, PASSWORD, MQTT_HOST)
-    client.on_connect = connected
-    client.on_message = message
-    try:
-        client.connect()
-        client.loop_blocking()
-    except KeyboardInterrupt:
-        client.disconnect()
-        print 'Close connect to MQTT broker :('
+        self._client.subscribe(self._mqtttopic)
 
 
 if __name__ == '__main__':
-    runMQTT()
+
+    def on_connect(mqcli):
+        mqcli.subscribe()
+
+    def on_message(mqcli, topic, payload, qos):
+        # 反序列化消息和数据
+        recv_messages = json.loads(payload)
+        print recv_messages
+        return recv_messages
+
+    mqcli = PyMQTT()
+    mqcli.on_connect = on_connect
+    mqcli.on_message = on_message
+    mqcli.connect()
+    mqcli.loop_blocking()

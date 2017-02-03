@@ -1,17 +1,26 @@
 # -*- coding: utf8 -*-
 
+from celery import Celery
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_socketio import SocketIO
 # from . import models
-# from . import connectDB
+
+import sys
+sys.path.append('../')
+from config import BaseConfig
+
+
+celery = Celery(__name__, broker=BaseConfig.CELERY_BROKER_URL)
 
 
 bootstrap = Bootstrap()
 moment = Moment()
 db = SQLAlchemy()
+socketio = SocketIO()
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
 # 登录视图
@@ -31,10 +40,13 @@ def creat_app(config_name):
     app.secret_key = app.config['SECRET_KEY']
     app.config['SQLALCHEMY_DATABASE_URI']  # 连接数据库
 
+    # celery.conf.update(config_name)  # 更新celery的配置
+
     bootstrap.init_app(app)
     moment.init_app(app)
     db.init_app(app)
     login_manager.init_app(app)
+    socketio.init_app(app)
 
     from .main import main as main_blueprint  # 注册蓝图
     app.register_blueprint(main_blueprint)

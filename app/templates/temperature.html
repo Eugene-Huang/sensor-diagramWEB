@@ -13,18 +13,21 @@
       <div class="col-md-2">
         <div class="page-header">
             <h3>查找</h3>
-
         </div>
         <div class="bs-callout bs-callout-primary">
           <h4>存在节点</h4>
           <p>01, 02, 03, 04, 05</p>
         </div>
-        <!-- <form action="{{ url_for('user.temperature') }}" method=post class="form-signin" id="searchform"> -->
         <h4 class="form-signin-heading">搜索节点</h4>
         <label for="inputSearch" class="sr-only">Search</label>
         <input type="text" name="node" id="inputsearch" class="form-control" placeholder="Search" required autofocus><br>
         <button class="btn btn-sm btn-primary" id="click2search" value="Search">Search</button>
-        <!-- </form> -->
+      <div class="page-header">
+            <h3>Websocket捕获</h3>
+      </div>
+            <div id="websocket-info">
+              <!-- <span id="info"></span> -->
+            </div>
       </div>
       <div class="col-md-10">
         <div class="page-header">
@@ -41,6 +44,20 @@
 
 {% block scripts %}
 	{{ super() }}
+  <script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
+  <script type="text/javascript" charset="utf-8">
+      // var namespace = '/test'
+      var socket = io.connect();
+      socket.on('connect', function(){
+        console.log("I'm connected");
+      });
+      socket.on('server_response', function(msg) {
+          $("#websocket-info").append('<br>Received #' + msg);
+          console.log("received: " + msg)
+          // $("info").html(msg)
+      });
+
+  </script>
 	<script type="text/javascript" src="../static/js/temperature/tempview.js"></script>
 	<script type="text/javascript" src="../static/js/temperature/lastdaytemp.js"></script>
 	<script type="text/javascript" src="../static/js/temperature/lastweektemp.js"></script>

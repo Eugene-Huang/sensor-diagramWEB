@@ -40,12 +40,12 @@
           <h4>存在节点</h4>
           <p>01, 02, 03, 04, 05</p>
         </div>
-        <form action="{{ url_for('admin.viewDigital') }}" method=post class="form-signin">
+        <!-- <form action="{{ url_for('user.temperature') }}" method=post class="form-signin" id="searchform"> -->
         <h4 class="form-signin-heading">搜索节点</h4>
         <label for="inputSearch" class="sr-only">Search</label>
-        <input type="text" name="search" id="inputsearch" class="form-control" placeholder="Search" required autofocus><br>
-        <button class="btn btn-sm btn-primary" type="submit" value="Search">Search</button>
-        </form>
+        <input type="text" name="node" id="inputsearch" class="form-control" placeholder="Search" required autofocus><br>
+        <button class="btn btn-sm btn-primary" id="click2search" value="Search">Search</button>
+        <!-- </form> -->
       </div>
       <div class="col-md-10">
         <div class="page-header">
@@ -92,7 +92,7 @@
 <script type="text/javascript" src="../static/js/cdn/exporting.js"></script>
 <script type="text/javascript">
 //获取后台数据
-var data = {{ data|safe }}
+// var data = {{ data|safe }}
 
 </script>
 <script type="text/javascript" src="../static/js/get_digital_pie.js"></script>

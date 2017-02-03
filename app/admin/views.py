@@ -2,6 +2,7 @@
 
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required
+from sqlalchemy import and_
 from datetime import datetime
 import json
 import time
@@ -48,8 +49,7 @@ def sensorData():
         sensor = '人体红外'
         row = {"sensor": sensor, "status": h.status,
                "node": h.node, "address": h.address}
-    data = json.dumps(data)
-    return data
+    return json.dumps(data)
 
 
 # 用户管理
@@ -123,7 +123,6 @@ def userChart():
     admin_percent = (admin_length / total) * 100
     student_percent = (student_length / total) * 100
     teacher_percent = (teacher_length / total) * 100
-
     chart_data = [["Admin", admin_percent], ["Student",
                                              student_percent], ["Teacher", teacher_percent]]
     return json.dumps(chart_data)
@@ -135,28 +134,17 @@ def userChart():
 @login_required
 @admin_required
 def viewDigital():
-    if request.method == "POST":
-        node = request.form['search']
-        # 输入的节点号必须是整数
-        try:
-            node = int(node)
-        except:
-            flash(u'节点号必须是整数')
-
-        data = json.dumps([getPieData(node), getLineData(node)])
-        return render_template('view_digital.html', data=data, current_time=current_time)
-    else:
-        data = json.dumps([getPieData(1), getLineData(1)])
-        flash(u'默认显示节点01数据，请搜索节点查看数据')
-        return render_template('view_digital.html', data=data, current_time=current_time)
+    return render_template('view_digital.html', current_time=current_time)
 
 
 # 按节点获取线图数据
 
-
-def getLineData(node):
+@admin.route('/digsensor/line', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def digsenor_line():
     data = []
-    # 数据库查询
+    node = request.form.get('node', 1, type=int)
     fires = fire.query.filter(fire.node == node).order_by(fire.time).all()
     smokes = smoke.query.filter(smoke.node == node).order_by(smoke.time).all()
     human = humanInfrared.query.filter(
@@ -164,109 +152,82 @@ def getLineData(node):
     fire_data = []
     smoke_data = []
     human_data = []
-    # 处理火焰数据
-    if fires:  # 是否有相应节点数据，没有置0
+    # 是否有相应节点数据，没有置0
+    if fires:
         for f in fires:
-            if f.status is True:
-                value = 1
-            if f.status is False:
-                value = -1
-            tim = time.mktime((f.time).timetuple()) * 1000
-            fire_data.append([tim, value])
+            value = 1 if f.status is True else -1
+            fire_data.append([time.mktime((f.time).timetuple()) * 1000, value])
     else:
-        fire_data = 0
+        fire_data = [0, 0]
     data.append(fire_data)
-    # 处理烟雾数据
     if smokes:
         for s in smokes:
-            if s.status is True:
-                value = 1
-            if s.status is False:
-                value = -1
-            tim = time.mktime((f.time).timetuple()) * 1000
-            smoke_data.append([value, tim])
+            value = 1 if f.status is True else -1
+            smoke_data.append(
+                [time.mktime((f.time).timetuple()) * 1000, value])
     else:
-        smoke_data = 0
+        smoke_data = [0, 0]
     data.append(smoke_data)
-    # 处理人体红外数据
     if human:
         for h in human:
-            if h.status is True:
-                value = 1
-            if h.status is False:
-                value = -1
-            tim = time.mktime((f.time).timetuple()) * 1000
-            human_data.append([value, tim])
+            value = 1 if f.status is True else -1
+            human_data.append(
+                [time.mktime((f.time).timetuple()) * 1000, value])
     else:
-        human_data = 0
+        human_data = [0, 0]
     data.append(human_data)
-    # 返回json
-    return data
+    return json.dumps(data)
 
 # 按节点获取饼图数据
 
 
-def getPieData(node):
+@admin.route('/digsensor/pie', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def digsensor_pie():
     data = []
-    fire_true_list = []
-    fire_false_list = []
-    smoke_true_list = []
-    smoke_false_list = []
-    human_true_list = []
-    human_false_list = []
+    node = request.form.get('node', 1, type=int)
     # 数据库查询
-    fires = fire.query.filter(fire.node == node).all()
-    smokes = smoke.query.filter(smoke.node == node).all()
-    human = humanInfrared.query.filter(humanInfrared.node == node).all()
+    fire1len = len(fire.query.filter(
+        and_(fire.node == node, fire.status == 1)).all())
+    fire0len = len(fire.query.filter(
+        and_(fire.node == node, fire.status == 0)).all())
+    smoke1len = len(smoke.query.filter(
+        and_(smoke.node == node, smoke.status == 1)).all())
+    smoke0len = len(smoke.query.filter(
+        and_(smoke.node == node, smoke.status == 0)).all())
+    humanInfrared1len = len(humanInfrared.query.filter(
+        and_(humanInfrared.node == node, humanInfrared.status == 1)).all())
+    humanInfrared0len = len(humanInfrared.query.filter(
+        and_(humanInfrared.node == node, humanInfrared.status == 0)).all())
     # 数据处理
-    if fires:  # 是否有相应节点数据，没有置0
-        for f in fires:
-            if f.status is True:
-                fire_true_list.append(True)
-            if f.status is False:
-                fire_false_list.append(False)
-        fire_true_length = float(len(fire_true_list))
-        fire_false_length = float(len(fire_false_list))
-        total = fire_true_length + fire_false_length
-        fire_true_percent = (fire_true_length / total) * 100
-        fire_false_percent = (fire_false_length / total) * 100
-        fire_data = [['True', fire_true_percent],
-                     ['False', fire_false_percent]]
+    # 是否有相应节点数据，没有置0
+    if fire0len or fire1len:
+        fire1percent = (fire1len / float(fire1len + fire0len)) * 100
+        fire0percent = (fire0len / float(fire1len + fire0len)) * 100
+        fire_data = [['True', fire1percent],
+                     ['False', fire0percent]]
     else:
-        fire_data = 0
+        fire_data = [0, 0]
     data.append(fire_data)
 
-    if smokes:
-        for s in smokes:
-            if s.status is True:
-                smoke_true_list.append(True)
-            if s.status is False:
-                smoke_false_list.append(False)
-        smoke_true_length = float(len(smoke_true_list))
-        smoke_false_length = float(len(smoke_false_list))
-        total = smoke_true_length + smoke_false_length
-        smoke_true_percent = (smoke_true_length / total) * 100
-        smoke_false_percent = (smoke_false_length / total) * 100
-        smoke_data = [['True', smoke_true_percent],
-                      ['False', smoke_false_percent]]
+    if smoke0len or smoke1len:
+        smoke1percent = (smoke1len / float(smoke0len + smoke1len)) * 100
+        smoke0percent = (smoke0len / float(smoke0len + smoke1len)) * 100
+        smoke_data = [['True', smoke1percent],
+                      ['False', smoke0percent]]
     else:
-        smoke_data = 0
+        smoke_data = [0, 0]
     data.append(smoke_data)
 
-    if human:
-        for h in human:
-            if h.status is True:
-                human_true_list.append(True)
-            if h.status is False:
-                human_false_list.append(False)
-        human_true_length = float(len(human_true_list))
-        human_false_length = float(len(human_false_list))
-        total = human_true_length + human_false_length
-        human_true_percent = (human_true_length / total) * 100
-        human_false_percent = (human_false_length / total) * 100
-        human_data = [['True', human_true_percent],
-                      ['False', human_false_percent]]
+    if humanInfrared0len or humanInfrared1len:
+        human1percent = (humanInfrared1len /
+                         float(humanInfrared0len + humanInfrared1len)) * 100
+        human0percent = (humanInfrared0len /
+                         float(humanInfrared0len + humanInfrared1len)) * 100
+        human_data = [['True', human1percent],
+                      ['False', human0percent]]
     else:
-        human_data = 0
+        human_data = [0, 0]
     data.append(human_data)
-    return data
+    return json.dumps(data)

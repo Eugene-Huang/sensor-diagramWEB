@@ -47,7 +47,7 @@ def tempView():
 @login_required
 def newTemp():
     node = request.args.get('node', 1, type=int)
-    sql = 'SELECT time, value FROM temperature WHERE node={} ORDER BY time LIMIT 1'.format(
+    sql = 'SELECT time, value FROM temperature WHERE node={} ORDER BY time DESC LIMIT 1'.format(
         node)
     cur.execute(sql)
     result = cur.fetchone()
@@ -160,7 +160,7 @@ def humView(node=1):
 @user.route('/newhum', methods=['GET', 'POST'])
 @login_required
 def newHum(node=1):
-    sql = 'SELECT time, value FROM humidity WHERE node={} ORDER BY time LIMIT 1'.format(
+    sql = 'SELECT time, value FROM humidity WHERE node={} ORDER BY time DESC LIMIT 1'.format(
         node)
     cur.execute(sql)
     result = cur.fetchone()
@@ -269,7 +269,7 @@ def lightView(node=1):
 @user.route('/newlight', methods=['GET', 'POST'])
 @login_required
 def newLight(node=1):
-    sql = 'SELECT time, value FROM luminous_intensity WHERE node={} ORDER BY time LIMIT 1'.format(
+    sql = 'SELECT time, value FROM luminous_intensity WHERE node={} ORDER BY time DESC LIMIT 1'.format(
         node)
     cur.execute(sql)
     result = cur.fetchone()

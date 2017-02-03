@@ -1,6 +1,6 @@
 //2秒钟刷新一次数据
 function st() {
-  setInterval("getData()", 5000);
+  setInterval("getData()", 3000);
 }
 
 //动态更新图表数据

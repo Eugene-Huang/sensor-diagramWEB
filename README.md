@@ -1,4 +1,4 @@
-# SmartLabs
+# sensor-diagramWEB
 
 ## 项目简介
 一个简单的传感器数据显示网站，Flask为网站框架，JS做图表显示
@@ -33,7 +33,9 @@ pip install -i https://pypi.douban.com/simple -r requirements.txt
 ```
 
 ### 数据库配置
-安装好MySQL，建立名为“samrthome”的数据库
+安装好MySQL，建立数据库:"your db name"(数据库名任意，稍后写进项目配置文件中)
 
 ### 部署
+waitting...
+
 

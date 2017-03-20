@@ -9,7 +9,7 @@ import json
 from . import user
 from .. import socketio
 from .. import connectDB
-from ..tasks import mqtt_sub
+# from ..tasks import mqtt_sub
 
 current_time = datetime.utcnow()
 

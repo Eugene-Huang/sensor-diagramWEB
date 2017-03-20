@@ -1,21 +1,16 @@
 # -*- coding: utf8 -*-
 
-from celery import Celery
+from extensions import celery
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_socketio import SocketIO
-# from . import models
 
-import sys
-sys.path.append('../')
-from config import BaseConfig
-
-
-celery = Celery(__name__, broker=BaseConfig.CELERY_BROKER_URL)
-
+# import sys
+# sys.path.append('../')
+# from config import BaseConfig
 
 bootstrap = Bootstrap()
 moment = Moment()
@@ -34,27 +29,29 @@ login_manager.login_message_category = 'info'
 
 
 def creat_app(config_name):
-    app = Flask(__name__)
-    app.config.from_object(config_name)  # 从config.py读取配置文件
+    flask_app = Flask(__name__)
+    flask_app.config.from_object(config_name)  # 从config.py读取配置文件
 
-    app.secret_key = app.config['SECRET_KEY']
-    app.config['SQLALCHEMY_DATABASE_URI']  # 连接数据库
+    flask_app.secret_key = flask_app.config['SECRET_KEY']
+    flask_app.config['SQLALCHEMY_DATABASE_URI']  # 连接数据库
+    flask_app.config['CELERY_IMPORTS'] = ('app.celery_tasks',)  # 手动注册celery任务
+    flask_app.config['CELERY_BROKER_URL']  # celery中间人配置
+    flask_app.config['CELERY_RESULT_BACKEND']
 
-    # celery.conf.update(config_name)  # 更新celery的配置
-
-    bootstrap.init_app(app)
-    moment.init_app(app)
-    db.init_app(app)
-    login_manager.init_app(app)
-    socketio.init_app(app)
+    bootstrap.init_app(flask_app)
+    moment.init_app(flask_app)
+    db.init_app(flask_app)
+    login_manager.init_app(flask_app)
+    socketio.init_app(flask_app)
+    celery.init_app(flask_app)
 
     from .main import main as main_blueprint  # 注册蓝图
-    app.register_blueprint(main_blueprint)
+    flask_app.register_blueprint(main_blueprint)
 
     from .admin import admin as admin_blueprint
-    app.register_blueprint(admin_blueprint, url_prefix='/admin')
+    flask_app.register_blueprint(admin_blueprint, url_prefix='/admin')
 
     from .user import user as user_blueprint
-    app.register_blueprint(user_blueprint, url_prefix='/user')
+    flask_app.register_blueprint(user_blueprint, url_prefix='/user')
 
-    return app
+    return flask_app

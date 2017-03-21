@@ -11,7 +11,7 @@ import time
 MQTT_HOST = "localhost"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 60
-MQTT_TOPIC = 'SmartLab'
+MQTT_TOPIC = 'smartlab'
 
 
 def on_publish(mqttp, userdata, mid):
@@ -30,7 +30,7 @@ mqttp = mqtt.Client()
 mqttp.on_publish = on_publish
 mqttp.on_disconnect = on_disconnect
 
-mqttp.username_pw_set('zhifeng', password='zhifeng523')
+mqttp.username_pw_set('test', password='123456')
 mqttp.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
 
 
@@ -40,17 +40,22 @@ def create_sensor():
     '''
     # received_tiem = datetime.now()
     value = float(format(random.uniform(5, 20), '.1f'))
-    sensor_type = random.choice(
-        ['temp', 'hum', 'light'])
+    # sensor_type = random.choice(
+    #     ['temperature', 'humidity', 'light']
+    # )
     sensor_node = random.randint(1, 5)
-    return {'type': sensor_type, 'value': value,
-            'id': sensor_node}
+    sensor_address = random.choice(
+        ['class01', 'class02', 'class03']
+    )
+    return {"temperature": {'value': value, 'node': sensor_node, 'address': sensor_address}}
 
 
 while True:
     # current_time = datetime.now()
     # 要发布的消息
-    msg = {'title': 'test', 'items': [create_sensor(), create_sensor(), create_sensor()]}
+    # msg = {'title': 'test', 'items': [
+    #     create_sensor(), create_sensor(), create_sensor()]}
+    msg = create_sensor()
     msg = json.dumps(msg)
     try:
         mqttp.publish(MQTT_TOPIC, msg)
@@ -58,3 +63,12 @@ while True:
     except KeyboardInterrupt:
         mqttp.disconnect()
         break
+
+# msg = create_sensor()
+# print msg
+# print type(msg)
+
+# import urllib
+# data = urllib.urlencode(msg)
+# print data
+# print type(data)

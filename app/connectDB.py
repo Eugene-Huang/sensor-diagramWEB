@@ -4,7 +4,7 @@
 import ConfigParser
 import MySQLdb
 import logging
-import json
+# import json
 from subprocess import os
 import paho.mqtt.client as mqttc
 
@@ -12,7 +12,8 @@ import paho.mqtt.client as mqttc
 MQTT_KEEPALIVE_INTERVAL = 60
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+# 设置日志等级
+logger.setLevel(logging.INFO)
 
 sh = logging.StreamHandler()
 fmt = '%(asctime)s - %(threadName)s - %(levelname)s > %(message)s'
@@ -49,9 +50,8 @@ class PyMQTT(object):
 
     def __init__(self):
         config = ConfigParser.ConfigParser()
-        # config.read(os.path.join(os.getcwd(), 'db.conf'))
-        config.read(os.path.join(os.path.dirname(os.getcwd()), 'db.conf'))
-        logger.debug(os.path.join(os.path.dirname(os.getcwd()), 'db.conf'))
+        confdir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+        config.read(os.path.join(confdir, 'db.conf'))
         self._mqtthost = config.get('mosquitto', 'MQTT_HOST')
         self._mqttport = config.get('mosquitto', 'MQTT_PORT')
         self._mqtttopic = config.get('mosquitto', 'MQTT_TOPIC')
@@ -132,7 +132,7 @@ class PyMQTT(object):
             self._client.disconnect()
 
     def loop_background(self):
-        """Starts a background thread to listen for messages from Adafruit.IO
+        """Starts a background thread to listen for messages from Mosquitto
         and call the appropriate callbacks when feed events occur.  Will return
         immediately and will not block execution.  Should only be called once.
         """
@@ -149,18 +149,5 @@ class PyMQTT(object):
 
 
 if __name__ == '__main__':
-
-    def on_connect(mqcli):
-        mqcli.subscribe()
-
-    def on_message(mqcli, topic, payload, qos):
-        # 反序列化消息和数据
-        recv_messages = json.loads(payload)
-        print recv_messages
-        return recv_messages
-
-    mqcli = PyMQTT()
-    mqcli.on_connect = on_connect
-    mqcli.on_message = on_message
-    mqcli.connect()
-    mqcli.loop_blocking()
+    basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    print os.path.join(basedir, 'db.conf')

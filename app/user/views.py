@@ -2,12 +2,14 @@
 
 from flask import render_template, request
 from flask_login import login_required
+# from flask_socketio import emit
 from datetime import datetime
 import time
 import json
 from . import user
+# from .. import socketio
 from .. import connectDB
-
+# from ..tasks import mqtt_sub
 
 current_time = datetime.utcnow()
 

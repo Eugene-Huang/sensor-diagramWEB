@@ -3,16 +3,18 @@ from flask_script import Manager, Server, Shell
 from flask_migrate import Migrate, MigrateCommand
 from app import db, creat_app
 from app.models import Role, User
+# import eventlet
 import config
 
+# eventlet.monkey_patch()
 
-app = creat_app(config.DevelopmentConfig)
-manager = Manager(app)
-migrate = Migrate(app, db)
+flask_app = creat_app(config.DevelopmentConfig)
+manager = Manager(flask_app)
+migrate = Migrate(flask_app, db)
 
 
 def make_shell_context():
-    return dict(app=app, db=db, User=User, Role=Role)
+    return dict(flask_app=flask_app, db=db, User=User, Role=Role)
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))

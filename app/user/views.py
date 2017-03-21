@@ -1,13 +1,13 @@
 # # -*- coding: utf8 -*-
 
-from flask import render_template, request, jsonify
+from flask import render_template, request
 from flask_login import login_required
-from flask_socketio import emit
+# from flask_socketio import emit
 from datetime import datetime
 import time
 import json
 from . import user
-from .. import socketio
+# from .. import socketio
 from .. import connectDB
 # from ..tasks import mqtt_sub
 
@@ -347,32 +347,6 @@ def allLight(node=1):
         return json.dumps(data)
     else:
         return json.dumps([0, 0])
-
-
-# @user.route('/mqtt/subscribe', methods=['POST'])
-# def subscribe():
-#     mqtt_sub.block_sub.apply_async()
-#     return jsonify({}), 202
-
-
-@user.route('/msg', methods=['GET', 'POST'])
-def msg():
-    data = request.form['message']
-    socketio.emit('server_response', data)
-    result = {
-        'status': 'ok'
-    }
-    return json.dumps(result)
-
-
-# @socketio.on('client_event')
-# def client_msg(message):
-#     emit('server_response', {'data': 123456})
-
-
-# @socketio.on('connect_event')
-# def connected_msg(msg):
-#     emit('server_response', {'data': msg['data']})
 
 
 if __name__ == '__main__':

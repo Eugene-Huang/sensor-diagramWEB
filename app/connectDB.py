@@ -12,7 +12,8 @@ import paho.mqtt.client as mqttc
 MQTT_KEEPALIVE_INTERVAL = 60
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+# 设置日志等级
+logger.setLevel(logging.INFO)
 
 sh = logging.StreamHandler()
 fmt = '%(asctime)s - %(threadName)s - %(levelname)s > %(message)s'

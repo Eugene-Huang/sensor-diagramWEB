@@ -3,8 +3,10 @@ from flask_script import Manager, Server, Shell
 from flask_migrate import Migrate, MigrateCommand
 from app import db, creat_app
 from app.models import Role, User
+# import eventlet
 import config
 
+# eventlet.monkey_patch()
 
 flask_app = creat_app(config.DevelopmentConfig)
 manager = Manager(flask_app)

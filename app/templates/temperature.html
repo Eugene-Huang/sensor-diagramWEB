@@ -23,11 +23,12 @@
         <input type="text" name="node" id="inputsearch" class="form-control" placeholder="Search" required autofocus><br>
         <button class="btn btn-sm btn-primary" id="click2search" value="Search">Search</button>
       <div class="page-header">
-            <h3>Websocket捕获</h3>
+            <h3>MQTT订阅</h3>
       </div>
-            <div id="websocket-info">
-              <!-- <span id="info"></span> -->
-            </div>
+          <div class="bs-callout bs-callout-success" id="websocket-info">
+            打开Websocket捕获
+          </div>
+          <button class="btn btn-sm btn-primary" id="start-tasksub" value="open">Start</button>
       </div>
       <div class="col-md-10">
         <div class="page-header">
@@ -44,18 +45,29 @@
 
 {% block scripts %}
 	{{ super() }}
-  <script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
   <script type="text/javascript" charset="utf-8">
-      // var namespace = '/test'
-      var socket = io.connect();
+      var namespace = '/task'
+      var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
       socket.on('connect', function(){
-        console.log("I'm connected");
+        // console.log("Client has connected to the server");
+        socket.emit('my event', 'connection signal from client');
       });
       socket.on('server_response', function(msg) {
-          $("#websocket-info").append('<br>Received #' + msg);
-          console.log("received: " + msg)
+          console.log("received: " + msg);
+          // $("#websocket-info").append('<br><h4>Received # ' + msg + '</h4>');
           // $("info").html(msg)
       });
+      // socket.on('test response', function(data){
+      //   console.log("test # " + data);
+      // });
+      socket.on('update temperature', function(data){
+        console.log("update temperature # " + data);
+        $("#websocket-info").text(data);
+      });
+      // $('#start-tasksub').bind('click', function() {
+      //   $.get('/tasksub');
+      // });
 
   </script>
 	<script type="text/javascript" src="../static/js/temperature/tempview.js"></script>

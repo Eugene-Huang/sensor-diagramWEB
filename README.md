@@ -22,17 +22,19 @@ yum install python-devel mysql-devel zlib-devel openssl-devel -y
 
 ### Redis安装配置
 安装编译工具
-`yum install gcc make`
 从官网下载redis源码包
-`curl http://download.redis.io/releases/redis-3.0.4.tar.gz -o redis-3.0.4.tar.gz`
 解压缩并进入安装目录
-`tar zxvf redis-3.0.4.tar.gz &&  cd redis-3.0.4`
 编译
-`make`
 进入源文件的目录
-`cd src`
 复制 Redis 的服务器和客户端到 /usr/local/bin
-`cp redis-server redis-cli /usr/local/bin`
+```bash
+yum install gcc make
+curl http://download.redis.io/releases/redis-3.0.4.tar.gz -o redis-3.0.4.tar.gz
+tar zxvf redis-3.0.4.tar.gz &&  cd redis-3.0.4
+make
+cd src
+cp redis-server redis-cli /usr/local/bin
+```
 额外配置请参考https://linux.cn/article-6719-1.html
 
 
@@ -53,22 +55,25 @@ pip install virtualenv
 ```
 
 ### 修改程序配置文件
+```bash
 [db]
 DBHOST = localhost
 DBNAME = smartlab
 DBUSER = root
 PASSWORD = 
+
 [mosquitto]
 MQTT_HOST = localhost
 MQTT_PORT = 1883
 MQTT_TOPIC = 
 USERNAME = 
 PASSWORD = 
+
 [celery_redis]
 REDIS_HOST = localhost
 REDIS_PORT = 6379
 REDIS_DB = 0
-
+```
 ### 部署程序
 1. 从github上克隆项目到本地
 2. 进入项目目录
@@ -89,3 +94,5 @@ REDIS_DB = 0
   gunnicorn --worker--class eventlet -w 1 manage:app -D
   celery -A celery_runner worker --loglevel=info
   ```
+
+![效果展示](https://raw.githubusercontent.com/Zhiwei1996/sensor-diagramWEB/master/app/static/images/sensor.png)
